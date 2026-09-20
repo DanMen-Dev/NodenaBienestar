@@ -1,0 +1,8 @@
+RecursoID,RecursoNombre,DiaSemana,HoraInicio,HoraFin,PlazasFijas,FechasValidas
+SALA_CLASES,Sala de clases,Martes,10:00,11:00,6,
+SALA_CLASES,Sala de clases,Jueves,10:00,11:00,6,
+SALA_CLASES,Sala de clases,Martes,09:00,10:00,6,
+SALA_CLASES,Sala de clases,Jueves,09:00,10:00,6,
+CAMILLA_1,Camilla masajes,Martes,10:00,20:15,1,
+CAMILLA_1,Camilla masajes,Jueves,10:00,20:15,1,
+CAMILLA_1,Camilla masajes,Viernes,10:00,20:15,1,

@@ -1,0 +1,14 @@
+services:
+  bienestar-backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nodena_bienestar_api
+    ports:
+      - "8080:8000"
+    volumes:
+      - .:/app
+    environment:
+      - PORT=8000
+    restart: always
+

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Bienestar - Reservas en Vivo</title>
+    <style>
+        body { font-family: sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 600px; background: white; padding: 20px; margin: 0 auto; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        h1 { color: #2c3e50; text-align: center; }
+        .servicio-card { border: 1px solid #ddd; padding: 12px; margin-bottom: 10px; border-radius: 6px; background: #fafafa; }
+        .servicio-card strong { font-size: 16px; color: #16a085; }
+        label { display: block; margin-top: 12px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .btn-submit { width: 100%; background: #16a085; color: white; border: none; padding: 12px; font-size: 16px; font-weight: bold; border-radius: 4px; cursor: pointer; margin-top: 20px; }
+        .btn-submit:hover { background: #117a65; }
+        #mensaje-status { margin-top: 15px; padding: 10px; border-radius: 4px; text-align: center; display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Centro de Bienestar Nodena 🌿</h1>
+        
+        <h3>✨ Nuestros Servicios Disponibles:</h3>
+        <div id="lista-servicios">Cargando catálogo maestro desde la base de datos relacional...</div>
+
+        <h3>📅 Agendar tu Reserva:</h3>
+        <form id="formulario-reserva">
+            <label for="select-servicio">1. Selecciona el Servicio:</label>
+            <select id="select-servicio" required>
+                <option value="">Cargando opciones...</option>
+            </select>
+
+            <label for="input-nombre">2. Tu Nombre Completo:</label>
+            <input type="text" id="input-nombre" placeholder="Ej: Laura Gómez" required>
+
+            <label for="input-telefono">3. Teléfono de Contacto (WhatsApp):</label>
+            <input type="tel" id="input-telefono" placeholder="Ej: +34600111222" required>
+
+            <label for="input-fecha">4. Selecciona la Fecha:</label>
+            <input type="date" id="input-fecha" required>
+
+            <button type="submit" class="btn-submit">Confirmar Reserva en Vivo 🚀</button>
+        </form>
+
+        <div id="mensaje-status"></div>
+    </div>
+
+    <script>
+        const API_URL = '/api/v1';
+
+        // 1. CARGAR SERVICIOS DESDE LA BASE DE DATOS REAL AL LEVANTAR LA PÁGINA
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch(`${API_URL}/servicios`)
+                .then(res => {
+                    if (!res.ok) throw new Error('Error al consultar el catálogo');
+                    return res.json();
+                })
+                .then(data => {
+                    const contenedorLista = document.getElementById('lista-servicios');
+                    const selectorServicio = document.getElementById('select-servicio');
+                    
+                    contenedorLista.innerHTML = '';
+                    selectorServicio.innerHTML = '<option value="">-- Selecciona un servicio --</option>';
+
+                    // Renderizar los primeros 3 servicios para cumplir de forma limpia la Fase 2
+                    data.slice(0, 3).forEach(s => {
+                        // Inyectar en el catálogo visual
+                        contenedorLista.innerHTML += `
+                            <div class="servicio-card">
+                                <strong>${s.nombre}</strong> (${s.tipo})<br>
+                                ⏳ Duración: ${s.duracion_min} min | 💰 Precio: $${s.precio}
+                            </div>
+                        `;
+                        // Inyectar en las opciones del formulario
+                        selectorServicio.innerHTML += `<option value="${s.id}">${s.nombre} - $${s.precio}</option>`;
+                    });
+                })
+                .catch(err => {
+                    document.getElementById('lista-servicios').innerText = 'Fallo al cargar servicios.';
+                    console.error(err);
+                });
+        });
+
+        // 2. CAPTURAR EL ENVÍO DEL FORMULARIO Y REGISTRAR EN LA DB
+        document.getElementById('formulario-reserva').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const payload = {
+                nombre: document.getElementById('input-nombre').value,
+                telefono: document.getElementById('input-telefono').value,
+                fecha: document.getElementById('input-fecha').value,
+                servicio_id: document.getElementById('select-servicio').value
+            };
+
+            const statusDiv = document.getElementById('mensaje-status');
+            statusDiv.style.display = 'block';
+            statusDiv.style.background = '#ebf5fb';
+            statusDiv.style.color = '#2980b9';
+            statusDiv.innerText = 'Procesando asentamiento en la base de datos de Alemania...';
+
+            fetch(`${API_URL}/reservar`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    statusDiv.style.background = '#d4efdf';
+                    statusDiv.style.color = '#27ae60';
+                    statusDiv.innerHTML = `🎉 <strong>¡Reserva Exitosa!</strong><br>Código de Cita Asignado: ${data.cita_id}`;
+                    document.getElementById('formulario-reserva').reset();
+                } else {
+                    throw new Error(data.detail || 'Fallo interno');
+                }
+            })
+            .catch(err => {
+                statusDiv.style.background = '#f9ebd2';
+                statusDiv.style.color = '#a93226';
+                statusDiv.innerText = `❌ Error al agendar: ${err.message}`;
+            });
+        });
+    </script>
+</body>
+</html>

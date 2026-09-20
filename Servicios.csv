@@ -1,0 +1,15 @@
+ID,Nombre,Tipo,Duracion_min,Duracion_bloqueo_min,Capacidad,RecursoID,Precio,Activo
+S01,Pilates Suelo,grupo,60,60,6,SALA_CLASES,60,TRUE
+S02,Yoga Hatha Vinyasa,grupo,60,60,6,SALA_CLASES,60,TRUE
+S03,Yin Yoga,grupo,60,60,6,SALA_CLASES,50,TRUE
+S10,Masaje Shiatsu,individual,60,75,1,CAMILLA_1,55,TRUE
+S11,Masaje Corporal Completo,individual,60,75,1,CAMILLA_1,55,TRUE
+S12,Masaje Relajante,individual,60,75,1,CAMILLA_1,55,TRUE
+S13,Combo Espalda Sana,individual,45,75,1,CAMILLA_1,45,TRUE
+S14,Combo Estres,individual,45,75,1,CAMILLA_1,45,TRUE
+S15,Combo Piernas Cansadas,individual,45,75,1,CAMILLA_1,45,TRUE
+S16,Combo Bruxismo,individual,45,75,1,CAMILLA_1,45,TRUE
+S17,Masaje Kobido,individual,60,75,1,CAMILLA_1,60,TRUE
+S18,Masaje Facial Reafirmante,individual,60,75,1,CAMILLA_1,60,TRUE
+S19,Masaje Facial + Acupuntura,individual,60,75,1,CAMILLA_1,65,TRUE
+S20,Masaje Facial Rejuvenecedor,individual,90,90,1,CAMILLA_1,90,TRUE
