@@ -28,7 +28,7 @@ def obtener_servicios():
         cursor.execute("SELECT id, nombre, tipo, duracion_min, precio FROM servicios")
         filas = cursor.fetchall()
         
-        # Mapeamos la tupla SQL a una estructura JSON limpia y legible
+        # Ttupla SQL a una estructura JSON limpia y legible
         servicios = []
         for f in filas:
             servicios.append({
@@ -50,7 +50,7 @@ def crear_reserva(data: RequestReserva):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     try:
-        # Generar un ID de cita secuencial básico para la prueba técnica
+        # Generar un ID de cita secuencial básico
         cursor.execute("SELECT COUNT(*) FROM citas")
         conteo = cursor.fetchone()[0]
         nueva_cita_id = f"C{str(conteo + 1).zfill(3)}"
@@ -63,7 +63,7 @@ def crear_reserva(data: RequestReserva):
         
         precio_servicio = servicio[0]
         
-        # Asignar recurso por defecto según el tipo de servicio (Física de tus CSV)
+        # Asignar recurso por defecto según el tipo de servicio (Física del CSV)
         recurso_id = "SALA_CLASES" if data.servicio_id in ["S01", "S02", "S03"] else "CAMILLA_1"
         
         # Inserción limpia en la tabla de citas relacionales
@@ -80,7 +80,46 @@ def crear_reserva(data: RequestReserva):
     finally:
         conn.close()
 
-# 3. INTERFAZ FRONTEND: Servir el HTML estático de la app de forma transparente
+# 3. ENDPOINT GET ADMIN: Recuperar el consolidado maestro de citas para el centro
+@app.get("/api/v1/admin/citas")
+def obtener_citas_admin():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    try:
+        # Consulta relacional uniendo la cita con el nombre estético del servicio
+        cursor.execute("""
+            SELECT c.id, c.fecha, c.hora_inicio, s.nombre, c.cliente_nombre, c.cliente_contacto, c.canal, c.estado
+            FROM citas c
+            JOIN servicios s ON c.servicio_id = s.id
+            ORDER BY c.fecha DESC, c.hora_inicio DESC
+        """)
+        filas = cursor.fetchall()
+        
+        citas = []
+        for f in filas:
+            citas.append({
+                "id": f[0],
+                "fecha": f[1],
+                "hora_inicio": f[2],
+                "servicio_nombre": f[3],
+                "cliente_nombre": f[4],
+                "cliente_contacto": f[5],
+                "canal": f[6],
+                "estado": f[7]
+            })
+        return citas
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error en el volcado analítico: {str(e)}")
+    finally:
+        conn.close()
+
+# 4. INTERFAZ ADMIN: Servir la consola del centro de bienestar
+@app.get("/admin")
+def servir_admin():
+    return FileResponse(os.path.join("static", "admin.html"))
+
+
+# 5. INTERFAZ FRONTEND: Servir el HTML estático de la app de forma transparente
 @app.get("/")
 def servir_frontend():
     return FileResponse(os.path.join("static", "index.html"))
